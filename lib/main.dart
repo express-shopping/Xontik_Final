@@ -1,12 +1,12 @@
+import 'dart:ui';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
-import 'app_state.dart';
-import 'dart:ui'; 
+import 'app_state.dart'; // تأكد أن هذا الملف موجود في مجلد lib
 
-// --- نماذج البيانات والقوائم المركزية ---
+// --- النماذج المركزية ---
 class XontikUser {
   final String name;
   final String handle;
@@ -21,7 +21,7 @@ final List<XontikUser> xontikUsers = [
   XontikUser(name: "محمد علي", handle: "@m_ali", image: "https://i.pravatar.cc/150?u=3", lastMsg: "متى البث القادم؟"),
 ];
 
-// --- الدوال المساعدة العامة ---
+// --- الدوال العامة ---
 void showXontikNotification(BuildContext context, String user, String msg) {
   OverlayState? overlayState = Overlay.of(context);
   OverlayEntry overlayEntry = OverlayEntry(
@@ -90,6 +90,11 @@ class XontikMasterpiece extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.black,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
+        ),
       ),
       home: const AuthScreen(),
     );
@@ -108,15 +113,19 @@ class AuthScreen extends StatelessWidget {
           children: [
             const Spacer(),
             const Text("XONTIK", style: TextStyle(fontSize: 65, fontWeight: FontWeight.bold, letterSpacing: 6)),
+            const SizedBox(height: 10),
+            const Text("انضم إلى مجتمع المبدعين العالمي", style: TextStyle(color: Colors.white54, fontSize: 15)),
             const SizedBox(height: 60),
             _socialBtn(Icons.person_outline, "استخدام الهاتف / البريد الإلكتروني"),
             _socialBtn(Icons.facebook, "المتابعة باستخدام Facebook", color: Colors.blueAccent),
             const Spacer(),
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const MainTikTokScaffold())),
-              child: const Padding(
-                padding: EdgeInsets.only(bottom: 35),
-                child: Text("تخطي وتسجيل الدخول كضيف", style: TextStyle(color: Color(0xFFeb3349))),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 35),
+                child: RichText(text: const TextSpan(text: "ليس لديك حساب؟ ", style: TextStyle(color: Colors.white60), children: [
+                  TextSpan(text: "إنشاء حساب", style: TextStyle(color: Color(0xFFeb3349), fontWeight: FontWeight.bold)),
+                ])),
               ),
             ),
           ],
@@ -166,7 +175,7 @@ class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
         onTap: (i) => i == 2 ? _showUploadOptions(context) : setState(() => _selectedIndex = i),
         type: BottomNavigationBarType.fixed,
         items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
+          const BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'الرئيسية'),
           const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'اكتشف'),
           BottomNavigationBarItem(icon: _buildPlusIcon(), label: ''),
           const BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'صندوق الوارد'),
@@ -188,16 +197,23 @@ class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
       backgroundColor: Colors.black.withOpacity(0.9),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
       builder: (context) => Container(
-        height: 250,
+        height: 280,
         padding: const EdgeInsets.all(20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Column(
           children: [
-            _uploadBtn(Icons.videocam, "كاميرا", Colors.purple, () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (c) => const CameraScreen()));
-            }),
-            _uploadBtn(Icons.perm_media, "المعرض", Colors.blue, () => Navigator.pop(context)),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _uploadBtn(Icons.videocam, "كاميرا", Colors.purple, () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (c) => const CameraScreen()));
+                }),
+                _uploadBtn(Icons.perm_media, "المعرض", Colors.blue, () => Navigator.pop(context)),
+                _uploadBtn(Icons.auto_awesome, "مؤثرات", Colors.pinkAccent, () {}),
+              ],
+            ),
           ],
         ),
       ),
@@ -206,11 +222,11 @@ class _MainTikTokScaffoldState extends State<MainTikTokScaffold> {
 
   Widget _uploadBtn(IconData icon, String label, Color color, VoidCallback onTap) => GestureDetector(
     onTap: onTap,
-    child: Column(mainAxisSize: MainAxisSize.min, children: [CircleAvatar(radius: 30, backgroundColor: color.withOpacity(0.2), child: Icon(icon, color: color, size: 30)), const SizedBox(height: 10), Text(label)]),
+    child: Column(children: [CircleAvatar(radius: 30, backgroundColor: color.withOpacity(0.2), child: Icon(icon, color: color, size: 30)), const SizedBox(height: 10), Text(label)]),
   );
 }
 
-// --- 3. الملف الشخصي ---
+// --- 3. ملف التعريف ---
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
   @override
@@ -227,20 +243,24 @@ class ProfileScreen extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             _stat("150", "أتابع"),
             _stat("1.5M", "متابعين"),
-            Consumer<XontikProvider>(builder: (context, p, child) => _stat(p.formattedLikes, "إعجاب")),
+            Consumer<XontikProvider>(builder: (context, p, _) => _stat(p.formattedLikes, "إعجاب")),
           ]),
           const SizedBox(height: 25),
-          ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const EditProfileScreen())), child: const Text("تعديل الملف")),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFeb3349), shape: StadiumBorder()),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const EditProfileScreen())),
+            child: const Text("تعديل الملف"),
+          ),
           const Divider(height: 40),
-          Expanded(child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3), itemCount: 9, itemBuilder: (c, i) => Container(margin: const EdgeInsets.all(1), color: Colors.white10, child: const Icon(Icons.play_arrow)))),
+          Expanded(child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3), itemCount: 12, itemBuilder: (c, i) => Container(color: Colors.white10, margin: const EdgeInsets.all(1), child: const Icon(Icons.play_arrow, color: Colors.white24)))),
         ],
       ),
     );
   }
-  Widget _stat(String v, String l) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [Text(v, style: const TextStyle(fontWeight: FontWeight.bold)), Text(l, style: const TextStyle(color: Colors.grey))]));
+  Widget _stat(String v, String l) => Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Column(children: [Text(v, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), Text(l, style: const TextStyle(color: Colors.grey))]));
 }
 
-// --- 4. محرك الفيديوهات ---
+// --- 4. مشغل الفيديوهات ---
 class TikTokFeedView extends StatelessWidget {
   const TikTokFeedView({super.key});
   final List<String> videoUrls = const [
@@ -272,7 +292,7 @@ class _VideoItemState extends State<VideoItem> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))..initialize().then((_) {
-      setState(() { _isInitialized = true; _controller.play(); _controller.setLooping(true); });
+      if (mounted) setState(() { _isInitialized = true; _controller.play(); _controller.setLooping(true); });
     });
   }
 
@@ -283,7 +303,10 @@ class _VideoItemState extends State<VideoItem> {
   Widget build(BuildContext context) {
     return VisibilityDetector(
       key: Key(widget.videoUrl),
-      onVisibilityChanged: (info) => info.visibleFraction < 0.5 ? _controller.pause() : _controller.play(),
+      onVisibilityChanged: (info) {
+        if (!mounted || !_isInitialized) return;
+        info.visibleFraction < 0.5 ? _controller.pause() : _controller.play();
+      },
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -293,6 +316,7 @@ class _VideoItemState extends State<VideoItem> {
             const SizedBox(height: 20),
             IconButton(icon: const Icon(Icons.favorite, color: Colors.red, size: 35), onPressed: () => Provider.of<XontikProvider>(context, listen: false).addLike()),
             IconButton(icon: const Icon(Icons.comment, size: 35), onPressed: () {}),
+            IconButton(icon: const Icon(Icons.share, size: 35), onPressed: () {}),
           ])),
         ],
       ),
@@ -300,24 +324,36 @@ class _VideoItemState extends State<VideoItem> {
   }
 }
 
-// --- 5. واجهة تعديل الملف ---
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
-  @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
-}
-
-class _EditProfileScreenState extends State<EditProfileScreen> {
+// --- 5. واجهة اكتشف ---
+class DiscoverView extends StatelessWidget {
+  const DiscoverView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("تعديل الملف"), backgroundColor: Colors.black),
-      body: const Center(child: Text("واجهة التعديل قيد التطوير")),
+      appBar: AppBar(backgroundColor: Colors.black, title: const Text("اكتشف إبداع XONTIK")),
+      body: ListView(
+        children: [
+          _buildBanner(),
+          const ListTile(title: Text("هاشتاقات متصدرة", style: TextStyle(fontWeight: FontWeight.bold))),
+          _buildHorizontalList(),
+        ],
+      ),
     );
   }
+
+  Widget _buildBanner() => Container(
+    height: 150, margin: const EdgeInsets.all(15),
+    decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), gradient: const LinearGradient(colors: [Colors.purple, Colors.red])),
+    child: const Center(child: Text("تحدي XONTIK الجديد 🚀", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+  );
+
+  Widget _buildHorizontalList() => SizedBox(
+    height: 160,
+    child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 5, itemBuilder: (c, i) => Container(width: 110, margin: const EdgeInsets.all(5), decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8), image: const DecorationImage(image: NetworkImage("https://picsum.photos/200/300"), fit: BoxFit.cover)))),
+  );
 }
 
-// --- 6. صفحة الإعدادات والمحفظة ---
+// --- 6. الإعدادات ---
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
   @override
@@ -326,34 +362,15 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text("الإعدادات"), backgroundColor: Colors.black),
       body: ListView(
         children: [
-          ListTile(leading: const Icon(Icons.wallet), title: const Text("المحفظة"), onTap: () => _showWallet(context)),
-          ListTile(leading: const Icon(Icons.live_tv), title: const Text("بث مباشر"), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const LiveStreamScreen()))),
+          ListTile(leading: const Icon(Icons.wallet), title: const Text("المحفظة"), onTap: () {}),
+          ListTile(leading: const Icon(Icons.live_tv, color: Colors.red), title: const Text("بث مباشر"), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (c) => const LiveStreamScreen()))),
         ],
-      ),
-    );
-  }
-
-  void _showWallet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF121212),
-      builder: (c) => Container(
-        padding: const EdgeInsets.all(25),
-        child: Consumer<XontikProvider>(builder: (context, provider, child) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("الرصيد الحالي", style: TextStyle(fontSize: 18)),
-            Text("\$${provider.balance.toStringAsFixed(2)}", style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.green)),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: () => provider.withdrawFunds(10), child: const Text("سحب 10 دولار")),
-          ],
-        )),
       ),
     );
   }
 }
 
-// --- 7. واجهة البث المباشر ---
+// --- 7. البث المباشر ---
 class LiveStreamScreen extends StatefulWidget {
   const LiveStreamScreen({super.key});
   @override
@@ -367,24 +384,19 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(color: Colors.black87, child: const Center(child: Text("بث مباشر XONTIK", style: TextStyle(fontSize: 24)))),
+          Container(color: Colors.black87, child: const Center(child: Text("بث مباشر XONTIK LIVE"))),
           ..._hearts,
-          Positioned(bottom: 20, right: 20, child: Row(children: [
-            IconButton(icon: const Icon(Icons.card_giftcard, color: Colors.orange), onPressed: () {}),
-            IconButton(icon: const Icon(Icons.favorite, color: Colors.pink), onPressed: () {
-              setState(() {
-                _hearts.add(FloatingHeart(leftPosition: 50.0 + (DateTime.now().millisecond % 200)));
-              });
-            }),
-          ])),
-          Positioned(top: 40, left: 20, child: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))),
+          Positioned(top: 40, right: 20, child: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))),
+          Positioned(bottom: 20, right: 20, child: IconButton(icon: const Icon(Icons.favorite, color: Colors.pink, size: 40), onPressed: () {
+            setState(() { _hearts.add(FloatingHeart(leftPosition: 50.0 + (DateTime.now().millisecond % 200))); });
+          })),
         ],
       ),
     );
   }
 }
 
-// --- 8. واجهة صندوق الوارد ---
+// --- 8. صندوق الوارد ---
 class InboxScreen extends StatelessWidget {
   const InboxScreen({super.key});
   @override
@@ -404,7 +416,7 @@ class InboxScreen extends StatelessWidget {
   }
 }
 
-// --- 9. واجهة المحادثة التفصيلية ---
+// --- 9. واجهة المحادثة ---
 class ChatDetailScreen extends StatefulWidget {
   const ChatDetailScreen({super.key});
   @override
@@ -412,77 +424,41 @@ class ChatDetailScreen extends StatefulWidget {
 }
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
-  final List<String> _msgs = ["مرحباً بك!"];
+  final List<String> _msgs = ["مرحباً بك في XONTIK!"];
+  final TextEditingController _ctrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("المحادثة"), backgroundColor: Colors.black),
+      appBar: AppBar(title: const Text("المحادثة")),
       body: Column(
         children: [
           Expanded(child: ListView.builder(itemCount: _msgs.length, itemBuilder: (c, i) => ListTile(title: Text(_msgs[i])))),
-          TextField(onSubmitted: (v) => setState(() => _msgs.add(v))),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(children: [
+              Expanded(child: TextField(controller: _ctrl, decoration: const InputDecoration(hintText: "اكتب هنا..."))),
+              IconButton(icon: const Icon(Icons.send), onPressed: () { setState(() { _msgs.add(_ctrl.text); _ctrl.clear(); }); })
+            ]),
+          )
         ],
       ),
     );
   }
 }
 
-// --- 10. واجهة اكتشف ---
-class DiscoverView extends StatelessWidget {
-  const DiscoverView({super.key});
+// --- 10. تعديل الملف الشخصي ---
+class EditProfileScreen extends StatelessWidget {
+  const EditProfileScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("اكتشف إبداع XONTIK"), backgroundColor: Colors.black),
-      body: ListView(
-        children: [
-          Container(
-            height: 150, margin: const EdgeInsets.all(15),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.white10),
-            child: const Center(child: Text("تحديات اليوم 🚀", style: TextStyle(fontSize: 20))),
-          ),
-          const ListTile(title: Text("#برمجة_فلاتر", style: TextStyle(fontWeight: FontWeight.bold))),
-        ],
-      ),
+      appBar: AppBar(title: const Text("تعديل الملف")),
+      body: const Center(child: Text("هنا يمكنك تعديل بياناتك")),
     );
   }
 }
 
-// --- 11. واجهة الكاميرا ---
-class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
-  @override
-  State<CameraScreen> createState() => _CameraScreenState();
-}
-
-class _CameraScreenState extends State<CameraScreen> with SingleTickerProviderStateMixin {
-  CameraController? _controller;
-  bool _isInit = false;
-
-  @override
-  void initState() {
-    super.initState();
-    availableCameras().then((c) {
-      if (c.isNotEmpty) {
-        _controller = CameraController(c[0], ResolutionPreset.high);
-        _controller!.initialize().then((_) { if (mounted) setState(() => _isInit = true); });
-      }
-    });
-  }
-
-  @override
-  void dispose() { _controller?.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isInit ? CameraPreview(_controller!) : const Center(child: CircularProgressIndicator()),
-      floatingActionButton: FloatingActionButton(onPressed: () => Navigator.pop(context), child: const Icon(Icons.close)),
-    );
-  }
-}
-
-// --- 12. محرك القلوب المتطايرة ---
+// --- 11. القلوب المتطايرة ---
 class FloatingHeart extends StatefulWidget {
   final double leftPosition;
   const FloatingHeart({super.key, required this.leftPosition});
@@ -495,19 +471,45 @@ class _FloatingHeartState extends State<FloatingHeart> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(seconds: 2))..forward();
+    _ac = AnimationController(vsync: this, duration: const Duration(seconds: 2))..forward().then((_) => dispose());
   }
-  @override
-  void dispose() { _ac.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _ac,
-      builder: (c, child) => Positioned(
-        bottom: 100 + (_ac.value * 300),
-        left: widget.leftPosition,
-        child: Opacity(opacity: 1 - _ac.value, child: const Icon(Icons.favorite, color: Colors.red, size: 40)),
-      ),
+      builder: (c, _) => Positioned(bottom: 100 + (_ac.value * 300), left: widget.leftPosition, child: Opacity(opacity: 1 - _ac.value, child: const Icon(Icons.favorite, color: Colors.red, size: 40))),
     );
   }
 }
+
+// --- 12. الكاميرا ---
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
+  @override
+  State<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  CameraController? _controller;
+  bool _isInit = false;
+  @override
+  void initState() {
+    super.initState();
+    availableCameras().then((c) {
+      if (c.isNotEmpty) {
+        _controller = CameraController(c[0], ResolutionPreset.high);
+        _controller!.initialize().then((_) { if (mounted) setState(() => _isInit = true); });
+      }
+    });
+  }
+  @override
+  void dispose() { _controller?.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _isInit ? CameraPreview(_controller!) : const Center(child: CircularProgressIndicator()),
+      floatingActionButton: FloatingActionButton(backgroundColor: Colors.red, onPressed: () => Navigator.pop(context), child: const Icon(Icons.close)),
+    );
+  }
+}
+
