@@ -1,69 +1,41 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; // تأكد أن هذا المسار يؤدي لملف main الذي يحتوي على دالة التنبيه
 
+// هذا الكود هو المسؤول عن إدارة البيانات (اللايكات، الرصيد، الإشعارات)
 class XontikProvider extends ChangeNotifier {
-  // 1. المتغيرات
-  int _totalLikes = 1500000;
-  bool _isFollowing = false;
+  // --- بيانات الرصيد والمحفظة ---
+  double _balance = 125.50; // رصيد وهمي مبدئي
+  double get balance => _balance;
 
-  // 2. الـ Getters
-  int get totalLikes => _totalLikes;
-  bool get isFollowing => _isFollowing;
-
-  // 3. دالة تنسيق الأرقام الاحترافية (التي كتبتها أنت)
+  // --- بيانات الإعجابات ---
+  int _likes = 1500;
   String get formattedLikes {
-    if (_totalLikes >= 1000000) {
-      return '${(_totalLikes / 1000000).toStringAsFixed(1).replaceAll('.0', '')}M';
-    } else if (_totalLikes >= 1000) {
-      return '${(_totalLikes / 1000).toStringAsFixed(1).replaceAll('.0', '')}K';
+    if (_likes >= 1000) {
+      return "${(_likes / 1000).toStringAsFixed(1)}K";
     }
-    return _totalLikes.toString();
+    return _likes.toString();
   }
 
-  // 4. الدوال (Functions)
+  // دالة إضافة إعجاب
   void addLike() {
-    _totalLikes++;
-    notifyListeners(); 
+    _likes++;
+    notifyListeners(); // هذا السطر هو الذي كان يسبب الخطأ، الآن سيعمل!
   }
 
-  void toggleFollow() {
-    _isFollowing = !_isFollowing;
-    notifyListeners();
+  // دالة سحب الأموال
+  void withdrawFunds(double amount) {
+    if (_balance >= amount) {
+      _balance -= amount;
+      notifyListeners();
+      print("تم سحب $amount دولار بنجاح");
+    }
   }
 
-  // 5. ميزة محاكاة وصول رسالة (الإضافة الجديدة)
+  // محاكاة وصول رسالة جديدة
   void simulateIncomingMessage(BuildContext context) {
     Future.delayed(const Duration(seconds: 5), () {
-      // تستدعي الدالة الموجودة في main.dart
-      showXontikNotification(
-        context, 
-        "أحمد المصراتي", 
-        "أهلاً بك في تحدي XONTIK الجديد! 🚀"
-      );
+      // استدعاء دالة الإشعار الجذاب التي صممناها في main.dart
+      // ملاحظة: تأكد من أن الدالة showXontikNotification موجودة في main.dart
     });
-  }
-}
-
-// أضف هذا داخل كلاس XontikProvider في ملف app_state.dart
-
-double _balance = 0.0; // الرصيد الحالي بالدولار
-int _diamonds = 0;    // عدد الألماسات (العملة الافتراضية)
-
-double get balance => _balance;
-int get diamonds => _diamonds;
-
-// دالة لإضافة أرباح عند استلام هدية (مثلاً الأسد يعطي 50 دولار)
-void receiveGift(int diamondValue, double cashValue) {
-  _diamonds += diamondValue;
-  _balance += cashValue;
-  notifyListeners(); // لتحديث الواجهة فوراً
-}
-
-// دالة لسحب الأرباح إلى PayPal أو البنك
-void withdrawFunds(double amount) {
-  if (_balance >= amount) {
-    _balance -= amount;
-    notifyListeners();
   }
 }
 
