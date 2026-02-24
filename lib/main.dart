@@ -511,4 +511,3 @@ class _FloatingHeartState extends State<FloatingHeart> with SingleTickerProvider
     );
   }
 }
-
