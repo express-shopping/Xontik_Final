@@ -18,3 +18,4 @@ jobs:
         with:
           name: Xontik-App
           path: build/app/outputs/flutter-apk/*.apk
+
