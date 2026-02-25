@@ -10,8 +10,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          # هذا هو الإصدار الذي اقترحه سجل الخطأ لديك بالضبط
-          flutter-version: '3.41.2' 
+          # هذا الإصدار مستقر ويتوافق تماماً مع تعديل الـ SDK الأخير
+          flutter-version: '3.24.5' 
           channel: 'stable'
 
       - name: Install dependencies
